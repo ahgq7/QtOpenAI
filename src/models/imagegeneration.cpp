@@ -57,31 +57,66 @@ void ImageGeneration::handleReply()
 {
     if (!m_reply) return;
 
-   if (m_reply->error() == QNetworkReply::NoError) {
+#ifdef QT_DEBUG
+    qDebug() << "ImageGeneration::handleReply() called";
+#endif
+
+    if (m_reply->error() == QNetworkReply::NoError) {
         QByteArray data = m_reply->readAll();
+#ifdef QT_DEBUG
+        qDebug() << "Raw response data:" << data;
+#endif
         QJsonDocument doc = QJsonDocument::fromJson(data);
 
         if(doc.isObject()){
             QJsonObject obj = doc.object();
+#ifdef QT_DEBUG
+            qDebug() << "Parsed JSON object:" << obj;
+#endif
             if(obj.contains("data")){
                 QJsonArray dataArray = obj["data"].toArray();
+#ifdef QT_DEBUG
+                qDebug() << "Data array:" << dataArray;
+#endif
                 QList<QUrl> urls;
                 for(const QJsonValue& value : dataArray) {
                     QJsonObject imageObj = value.toObject();
+#ifdef QT_DEBUG
+                    qDebug() << "Image object:" << imageObj;
+#endif
                     if (imageObj.contains("url")) {
+                        // qDebug() << "URL found:" << imageObj["url"].toString();
                         urls.append(QUrl(imageObj["url"].toString()));
+                    } else {
+                        qDebug() << "URL not found in image object.";
                     }
                 }
-                emit imageReady(urls);
+
+                if(!urls.isEmpty()){
+                    emit imageReady(urls);
+                } else {
+                    emit error("No image URLs found in response.");
+                }
+
                 m_reply->deleteLater();
                 m_reply = nullptr;
                 return;
 
+            } else {
+                // qDebug() << "'data' key not found in JSON object.";
+                emit error("'data' key not found in JSON object.");
             }
+        } else {
+            // qDebug() << "Response is not a JSON object.";
+            emit error("Response is not a JSON object.");
         }
-          emit error("Unexpected JSON format.");
+
     }
     else {
+        qDebug() << "Network error:" << m_reply->errorString();
+#ifdef QT_DEBUG
+        qDebug() << "QNetworkReply error code:" << static_cast<int>(m_reply->error());
+#endif
         emit error(m_reply->errorString());
     }
     m_reply->deleteLater();
