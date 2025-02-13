@@ -119,6 +119,29 @@ For a complete example, see [`examples/chat/main.cpp`](examples/chat/main.cpp).
 
 ---
 
+## OpenRouter Usage
+
+**ChatCompletion** usage (basic snippet):
+   ```cpp
+   QtOpenAI openai;
+   openai.setApiKey("OPENROUTER_API_KEY");
+
+   ChatCompletion* chat = openai.chat();
+
+   chat->setEndPoint("https://openrouter.ai/api/v1/chat/completions");
+   chat->setModel("deepseek/deepseek-r1");
+
+   QJsonArray messages;
+   messages.append(QJsonObject{{"role", "user"}, {"content", "Hello, how are you?"}});
+   chat->send(messages);
+
+   QObject::connect(chat, &ChatCompletion::ready, [&](const QString &result) {
+       // handle response
+   });
+   ```
+
+---
+
 ## Potential Issues
 
 - **`.lib`**** not generated on Windows**: Ensure you have the export macro set up (`QTOPENAI_EXPORT`) and the `target_compile_definitions(QtOpenAI PRIVATE QTOPENAI_LIBRARY)` line in `CMakeLists.txt`.
