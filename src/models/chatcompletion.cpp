@@ -27,6 +27,10 @@ void ChatCompletion::setMaxTokens(int maxTokens)
     m_maxTokens = maxTokens;
 }
 
+void ChatCompletion::setEndPoint(const QString &newEndPoint) {
+    m_endPoint = newEndPoint;
+}
+
 void ChatCompletion::send(const QJsonArray &messages) {
     if (m_apiKey.isEmpty()) {
         emit error("API key is not set.");
@@ -40,7 +44,7 @@ void ChatCompletion::send(const QJsonArray &messages) {
     json["max_tokens"] = m_maxTokens;
 
     QNetworkRequest request;
-    request.setUrl(QUrl("https://api.openai.com/v1/chat/completions"));
+    request.setUrl(QUrl(m_endPoint));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_apiKey).toUtf8());
 
