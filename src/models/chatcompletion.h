@@ -23,7 +23,7 @@ public:
     void setModel(const QString &model);
     void setTemperature(double temperature);
     void setMaxTokens(int maxTokens);
-
+    void setEndPoint(const QString &newEndPoint);
     void send(const QJsonArray &messages);
 
 signals:
@@ -34,9 +34,10 @@ private slots:
     void handleReply();
 
 private:
-   NetworkManager* m_networkManager;
+    NetworkManager* m_networkManager;
     QString m_apiKey;
     QString m_model = "gpt-4o";
+    QString m_endPoint = "https://api.openai.com/v1/chat/completions";
     double m_temperature = 0.7;
     int m_maxTokens = 1024;
     QNetworkReply* m_reply = nullptr;
